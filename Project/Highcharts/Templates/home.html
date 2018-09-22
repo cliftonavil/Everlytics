@@ -1,0 +1,143 @@
+{% extends 'basetemplate.html' %}
+{% load static %}
+{% block content %}
+{% load widget_tweaks %}
+<br/>
+<center>
+    <form method="post" style="width:30%;">
+        {% csrf_token %}
+
+        {% for hidden_field in form.hidden_fields %}
+        {{ hidden_field }}
+        {% endfor %}
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger" role="alert">
+            {% for error in form.non_field_errors %}
+            {{ error }}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% for field in form.visible_fields %}
+        <div class="form-group">
+            <!--{{ field.label_tag }}-->
+
+            {% if form.is_bound %}
+            {% if field.errors %}
+            {% render_field field class="form-control is-invalid" %}
+            {% for error in field.errors %}
+            <div class="invalid-feedback">
+                {{ error }}
+            </div>
+            {% endfor %}
+            {% else %}
+            {% render_field field class="form-control is-valid" %}
+            {% endif %}
+            {% else %}
+            {% render_field field class="form-control" %}
+            {% endif %}
+
+            {% if field.help_text %}
+            <small class="form-text text-muted">{{ field.help_text }}</small>
+            {% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    <div>
+        <table class="table" style="width:30%;">
+            <thead>
+            <tr>
+                <th>Sl.No</th>
+                <th>Browsers Name</th>
+                <th>User Count</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for i in data %}
+            <tr>
+                <th>{{ forloop.counter }}</th>
+                <td>{{ i.Browsers }}</td>
+                <td>{{ i.Users__sum }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div id="container"></div>
+  <script type="text/javascript" src="{% static 'Highchart.js' %}"></script>
+  <script>
+    // Radialize the colors
+Highcharts.setOptions({
+    colors: Highcharts.map(Highcharts.getOptions().colors, function (color) {
+        return {
+            radialGradient: {
+                cx: 0.5,
+                cy: 0.3,
+                r: 0.7
+            },
+            stops: [
+                [0, color],
+                [1, Highcharts.Color(color).brighten(-0.3).get('rgb')] // darken
+            ]
+        };
+    })
+});
+
+// Build the chart
+Highcharts.chart('container', {
+    chart: {
+        plotBackgroundColor: null,
+        plotBorderWidth: null,
+        plotShadow: false,
+        type: 'pie'
+    },
+    title: {
+        text: 'Browser market shares in %'
+    },
+    tooltip: {
+        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+    },
+    plotOptions: {
+        pie: {
+            allowPointSelect: true,
+            cursor: 'pointer',
+            dataLabels: {
+                enabled: true,
+                format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                style: {
+                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                },
+                connectorColor: 'silver'
+            }
+        }
+    },
+     series: [{
+        name: 'Market Share',
+        colorByPoint: true,
+        data: [{
+            name: '{{Browsers_final.0}}',
+            y: {{percentage_final.0}},
+        }, {
+            name: '{{Browsers_final.1}}',
+            y: {{percentage_final.1}}
+        }, {
+            name: '{{Browsers_final.2}}',
+            y: {{percentage_final.2}}
+        }, {
+            name: '{{Browsers_final.3}}',
+            y: {{percentage_final.3}}
+        }, {
+            name: '{{Browsers_final.4}}',
+            y: {{percentage_final.4}}
+        }, {
+            name: '{{Browsers_final.5}}',
+            y: {{percentage_final.5}}
+        }]
+    }]
+});
+  </script>
+</center>
+{% endblock %}
